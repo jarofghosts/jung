@@ -19,8 +19,8 @@
   "author": "jesse keane",
   "license": "MIT",
   "dependencies": {
-    "fs-watch": "0.0.1",
     "nopt": "~2.1.2",
-    "lodash.debounce": "~2.2.1"
+    "lodash.debounce": "~2.2.1",
+    "watch-fs": "0.0.6"
   }
 }

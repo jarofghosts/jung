@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var Watcher = require('fs-watch').Watcher,
+var Watcher = require('watch-fs').Watcher,
     nopt = require('nopt'),
     path = require('path'),
     spawn = require('child_process').spawn,
@@ -35,12 +35,18 @@ if (!command.length || options.help) return help()
 if (!options.root || !options.root.length) options.root = [process.cwd()]
 if (!options.wait) options.wait = 1000
 
-var watcher_options = { paths: options.root, filters: {} },
+var watcher_options = { paths: options.root, filters: {
+        includeFile: make_filter('file'),
+        includeDir: make_filter('dir')
+      }
+    },
     watcher = new Watcher(watcher_options)
 
 watcher.on('any', debounce(trigger_command, options.wait))
-
-watcher.start()
+watcher.start(function (err) {
+  if (err) return console.log(err)
+  if (options.verbose) process.stdout.write('jung is listening\n')
+})
 
 function trigger_command() {
   if (blocked) return console.log('previous process still running')
