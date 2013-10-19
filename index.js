@@ -6,6 +6,7 @@ var Watcher = require('watch-fs').Watcher,
     spawn = require('child_process').spawn,
     debounce = require('lodash.debounce'),
     blocked = false,
+    queued = [],
     noptions = {
       root: Array,
       files: Array,
@@ -13,11 +14,12 @@ var Watcher = require('watch-fs').Watcher,
       notfiles: Array,
       notdirs: Array,
       wait: Number,
+      kill: Boolean,
       quiet: Boolean,
       help: Boolean,
       version: Boolean
     },
-        shorts = {
+    shorts = {
       r: ['--root'],
       d: ['--dirs'],
       f: ['--files'],
@@ -25,6 +27,7 @@ var Watcher = require('watch-fs').Watcher,
       D: ['--notdirs'],
       F: ['--notfiles'],
       q: ['--quiet'],
+      k: ['--kill'],
       h: ['--help'],
       v: ['--version']
     },
@@ -49,15 +52,23 @@ watcher.start(function (err) {
   if (!options.quiet) process.stdout.write('jung is listening\n')
 })
 
-function trigger_command(name, type) {
-  if (blocked) return console.error('previous process still running')
+function trigger_command(name) {
+  if (blocked) {
+    if (options.kill) {
+      queue = [name]
+      process.stdout.write('killing old process..\n\n')
+      return child.kill()
+    }
+    process.stdout.write('queueing new process\n')
+    return queue.push(name)
+  }
   blocked = true
   var env = process.env
   env.JUNG_FILE = name
 
   var this_command = command.map(replace_env)
-
-  var child = spawn(this_command[0], this_command.slice(1), { env: env, cwd: process.cwd() })
+  process.stdout.write('Running ' + this_command.join(' ') + '\n'
+  child = spawn(this_command[0], this_command.slice(1), { env: env, cwd: process.cwd() })
   child.on('close', finish_child)
 
   if (!options.quiet) {
@@ -68,6 +79,7 @@ function trigger_command(name, type) {
   function finish_child(code) {
     if (code !== 0) process.stderr.write('command exited with code ' + code)
     blocked = false
+    if (queue.length) trigger_command(queue.shift())
   }
   function replace_env(str) {
     return str.replace(/\$JUNG_FILE/g, name)
