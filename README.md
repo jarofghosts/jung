@@ -31,6 +31,7 @@ Options are
 * `--files, -f <regex>` Only watch files matching `<regex>`
 * `--notfiles, -F <regex>` Ignore files matching `<regex>`
 * `--wait, -w <time>` Debounce reaction for `<time>` ms, default 1000
+* `--kill, -k` Rather than queueing command runs, kill child process
 * `--quiet, -q` Do not show output from `<command>`
 * `--version, -v` Print jung version
 * `--help, -h` This thing.
