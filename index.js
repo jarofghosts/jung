@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-var watch = require('fs-watch').Watcher,
+var Watcher = require('fs-watch').Watcher,
     nopt = require('nopt'),
     path = require('path'),
     spawn = require('child_process').spawn,
     debounce = require('lodash.debounce'),
     blocked = false,
-    process,
     command,
     watcher
 
@@ -16,6 +15,7 @@ var noptions = {
   dirs: Array,
   notfiles: Array,
   notdirs: Array,
+  wait: Number,
   verbose: Boolean,
   help: Boolean,
   version: Boolean
@@ -24,6 +24,7 @@ var noptions = {
   r: ['--root'],
   d: ['--dirs'],
   f: ['--files'],
+  w: ['--wait'],
   D: ['--notdirs'],
   F: ['--notfiles'],
   v: ['--verbose'],
@@ -34,10 +35,38 @@ options = nopt(noptions, shorts, process.argv)
 command = options.argv.remain
 
 if (!command.length || options.help) return help()
+if (!options.root || !options.root.length) options.root = [process.cwd()]
+if (!options.wait) options.wait = 1000
 
-watcher = new Watcher()
+function make_filter(type) {
+  var not_array = type === 'file' ? options.notfiles : options.notdirs,
+      good_array = type === 'file' ? options.files : options.dirs,
+  not_array = (not_array || []).map(regex)
+  good_array = (good_array || []).map(regex)
 
-watcher.on('any', debounce(trigger_command))
+  return function (path) {
+    for (var i = 0, l = good_array.length; i < l; ++i) {
+      if (compiled[i].test(path)) return true
+    }
+    for (var i = 0, l = not_array.length; i < l; ++i) {
+      if (compiled[i].test(path)) return false
+    }
+    return true
+  }
+
+  function regex(str) {
+    return new RegExp(str)
+  }
+}
+
+function dir_filter() {
+}
+
+var watcher_options = { paths: options.root, filters: {} }
+
+watcher = new Watcher(watcher_options)
+
+watcher.on('any', debounce(trigger_command, options.wait))
 
 function trigger_command() {
   if (blocked) return console.log('previous process still running')
