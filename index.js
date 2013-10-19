@@ -13,7 +13,7 @@ var Watcher = require('watch-fs').Watcher,
       notfiles: Array,
       notdirs: Array,
       wait: Number,
-      verbose: Boolean,
+      quiet: Boolean,
       help: Boolean,
       version: Boolean
     },
@@ -24,7 +24,7 @@ var Watcher = require('watch-fs').Watcher,
       w: ['--wait'],
       D: ['--notdirs'],
       F: ['--notfiles'],
-      v: ['--verbose'],
+      q: ['--quiet'],
       h: ['--help'],
       V: ['--version']
     },
@@ -46,7 +46,7 @@ var watcher_options = { paths: options.root, filters: {
 watcher.on('any', debounce(trigger_command, options.wait))
 watcher.start(function (err) {
   if (err) return console.error(err)
-  if (options.verbose) process.stdout.write('jung is listening\n')
+  if (!options.quiet) process.stdout.write('jung is listening\n')
 })
 
 function trigger_command(name, type) {
@@ -60,7 +60,7 @@ function trigger_command(name, type) {
   var child = spawn(this_command[0], this_command.slice(1), { env: env, cwd: process.cwd() })
   child.on('close', finish_child)
 
-  if (options.verbose) {
+  if (!options.quiet) {
     child.stdout.pipe(process.stdout)
     child.stderr.pipe(process.stderr)
   }
@@ -88,7 +88,7 @@ function make_filter(type) {
     for (var i = 0, l = not_array.length; i < l; ++i) {
       if (not_array[i].test(path)) return false
     }
-    return true
+    return !good_array.length
   }
 
   function regex(str) {
