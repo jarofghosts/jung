@@ -1,7 +1,9 @@
 var Watcher = require('watch-fs').Watcher,
     path = require('path'),
     spawn = require('child_process').spawn,
-    debounce = require('lodash.debounce')
+    debounce = require('lodash.debounce'),
+    EE = require('events').EventEmitter,
+    inherits = require('utils').inherits
 
 exports.createJung = create_jung
 exports.Jung = Jung
@@ -18,6 +20,8 @@ function Jung(options, command) {
 
   return this
 }
+
+inherits(Jung, EE)
 
 Jung.prototype.version = function () {
   var jung = require('./package.json')
