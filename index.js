@@ -31,6 +31,7 @@ var Watcher = require('watch-fs').Watcher,
   options = nopt(noptions, shorts, process.argv),
   command = options.argv.remain
 
+if (options.version) return version()
 if (!command.length || options.help) return help()
 if (!options.root || !options.root.length) options.root = [process.cwd()]
 if (!options.wait) options.wait = 1000
@@ -55,8 +56,8 @@ function trigger_command() {
   child.on('close', finish_child)
 
   if (options.verbose) {
-    child.process.stdout.pipe(process.stdout)
-    child.process.stderr.pipe(process.stderr)
+    child.stdout.pipe(process.stdout)
+    child.stderr.pipe(process.stderr)
   }
 
   function finish_child(code) {
@@ -74,10 +75,10 @@ function make_filter(type) {
 
   return function (path) {
     for (var i = 0, l = good_array.length; i < l; ++i) {
-      if (compiled[i].test(path)) return true
+      if (good_array[i].test(path)) return true
     }
     for (var i = 0, l = not_array.length; i < l; ++i) {
-      if (compiled[i].test(path)) return false
+      if (not_array[i].test(path)) return false
     }
     return true
   }
@@ -88,5 +89,12 @@ function make_filter(type) {
 }
 
 function help() {
-  console.log('no')
+  var fs = require('fs')
+  version()
+  fs.createReadStream(__dirname + '/help.txt').pipe(process.stdout)
+}
+
+function version() {
+  var jung = require('./package.json')
+  process.stdout.write('jung version ' + jung.version + '\n')
 }
