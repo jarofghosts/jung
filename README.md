@@ -1,6 +1,8 @@
 jung
 =====
 
+[![Build Status](https://travis-ci.org/jarofghosts/jung.png?branch=master)](https://travis-ci.org/jarofghosts/jung)
+
 lightweight, flexible file watching
 
 ## why
