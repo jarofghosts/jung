@@ -6,7 +6,7 @@ var Watcher = require('watch-fs').Watcher,
     spawn = require('child_process').spawn,
     debounce = require('lodash.debounce'),
     blocked = false,
-    queued = [],
+    queue = [],
     noptions = {
       root: Array,
       files: Array,
@@ -67,7 +67,7 @@ function trigger_command(name) {
   env.JUNG_FILE = name
 
   var this_command = command.map(replace_env)
-  process.stdout.write('Running ' + this_command.join(' ') + '\n'
+  process.stdout.write('Running ``' + this_command.join(' ') + '``\n')
   child = spawn(this_command[0], this_command.slice(1), { env: env, cwd: process.cwd() })
   child.on('close', finish_child)
 
@@ -77,7 +77,9 @@ function trigger_command(name) {
   }
 
   function finish_child(code) {
-    if (code !== 0) process.stderr.write('command exited with code ' + code)
+    if (code !== 0 && !options.quiet) process.stderr.write(
+        '\nCommand exited with code ' + code + '\n'
+    )
     blocked = false
     if (queue.length) trigger_command(queue.shift())
   }
