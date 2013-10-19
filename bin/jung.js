@@ -32,4 +32,4 @@ var Jung = require('../').Jung,
 if (options.version) return Jung().version()
 if (!command.length || options.help) return Jung().help()
 
-return new Jung(options, command)
+return new Jung(options, command).start()

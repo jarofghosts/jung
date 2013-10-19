@@ -45,14 +45,14 @@ Jung.prototype.execute = function (trigger_file) {
   var env = process.env,
       command = this.command.map(replace_env)
 
-  env.JUNG_FILE = name
+  env.JUNG_FILE = trigger_file
 
   process.stdout.write('** Running ``' + command.join(' ') + '``\n')
   this.child = spawn(command[0],
       command.slice(1),
       { env: env, cwd: process.cwd() })
 
-  this.child.on('close', finish_child)
+  this.child.on('close', finish_child.bind(this))
 
   if (!this.options.quiet) {
     this.child.stdout.pipe(process.stdout)
@@ -64,7 +64,7 @@ Jung.prototype.execute = function (trigger_file) {
       process.stderr.write('\n** Command exited with code ' + code + '\n')
     }
 
-    blocked = false
+    this.blocked = false
     if (this.queue.length) this.execute(this.queue.shift())
   }
   function replace_env(str) {
@@ -82,7 +82,7 @@ Jung.prototype.start = function () {
       },
       watcher = new Watcher(watcher_options)
 
-  watcher.on('any', debounce(self.execute.bind(self), options.wait))
+  watcher.on('any', debounce(self.execute.bind(self), self.options.wait))
   watcher.start(function (err) {
     if (err) return console.error(err)
     if (!self.options.quiet) process.stdout.write('jung is listening..\n')
