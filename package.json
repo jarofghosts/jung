@@ -1,6 +1,6 @@
 {
   "name": "jung",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "trigger commands on file change events",
   "preferGlobal": true,
   "bin": {
@@ -9,6 +9,13 @@
   "main": "index.js",
   "scripts": {
     "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jarofghosts/jung.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jarofghosts/jung/issues"
   },
   "keywords": [
     "synchronicity",
