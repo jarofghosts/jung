@@ -32,7 +32,7 @@ Options are
 * `--notfiles, -F <regex>` Ignore files matching `<regex>`
 * `--wait, -w <time>` Debounce reaction for `<time>` ms, default 1000
 * `--quiet, -q` Do not show output from `<command>`
-* `--version, -V` Print jung version
+* `--version, -v` Print jung version
 * `--help, -h` This thing.
 
 ## notes

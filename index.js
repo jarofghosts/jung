@@ -26,7 +26,7 @@ var Watcher = require('watch-fs').Watcher,
       F: ['--notfiles'],
       q: ['--quiet'],
       h: ['--help'],
-      V: ['--version']
+      v: ['--version']
     },
   options = nopt(noptions, shorts, process.argv),
   command = options.argv.remain
