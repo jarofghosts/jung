@@ -30,7 +30,7 @@ Options are
 * `--notdirs, -D <regex>` Ignore sub directories matching `<regex>`
 * `--files, -f <regex>` Only watch files matching `<regex>`
 * `--notfiles, -F <regex>` Ignore files matching `<regex>`
-* `--wait, -w <time>` Debounce reaction for `<time>` ms
+* `--wait, -w <time>` Debounce reaction for `<time>` ms, default 1000
 * `--verbose, -v` Show output from `<command>`
 * `--version, -V` Print jung version
 * `--help, -h` This thing.
