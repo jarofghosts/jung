@@ -37,7 +37,7 @@ var Watcher = require('watch-fs').Watcher,
 if (options.version) return version()
 if (!command.length || options.help) return help()
 if (!options.root || !options.root.length) options.root = [process.cwd()]
-if (!options.wait) options.wait = 1000
+if (!options.wait) options.wait = 500
 
 var watcher_options = { paths: options.root, filters: {
         includeFile: make_filter('file'),
@@ -49,25 +49,25 @@ var watcher_options = { paths: options.root, filters: {
 watcher.on('any', debounce(trigger_command, options.wait))
 watcher.start(function (err) {
   if (err) return console.error(err)
-  if (!options.quiet) process.stdout.write('jung is listening\n')
+  if (!options.quiet) process.stdout.write('jung is listening..\n')
 })
 
 function trigger_command(name) {
   if (blocked) {
     if (options.kill) {
       queue = [name]
-      process.stdout.write('killing old process..\n\n')
+      process.stdout.write('** Killing old process..\n\n')
       return child.kill()
     }
-    process.stdout.write('queueing new process\n')
+    process.stdout.write('--Queueing new process\n')
     return queue.push(name)
   }
   blocked = true
-  var env = process.env
+  var env = process.env,
+      this_command = command.map(replace_env)
   env.JUNG_FILE = name
 
-  var this_command = command.map(replace_env)
-  process.stdout.write('Running ``' + this_command.join(' ') + '``\n')
+  process.stdout.write('** Running ``' + this_command.join(' ') + '``\n')
   child = spawn(this_command[0],
       this_command.slice(1),
       { env: env, cwd: process.cwd() })
@@ -81,7 +81,7 @@ function trigger_command(name) {
 
   function finish_child(code) {
     if (code !== 0 && !options.quiet) process.stderr.write(
-        '\nCommand exited with code ' + code + '\n'
+        '\n** Command exited with code ' + code + '\n'
     )
     blocked = false
     if (queue.length) trigger_command(queue.shift())
