@@ -68,7 +68,10 @@ function trigger_command(name) {
 
   var this_command = command.map(replace_env)
   process.stdout.write('Running ``' + this_command.join(' ') + '``\n')
-  child = spawn(this_command[0], this_command.slice(1), { env: env, cwd: process.cwd() })
+  child = spawn(this_command[0],
+      this_command.slice(1),
+      { env: env, cwd: process.cwd() })
+
   child.on('close', finish_child)
 
   if (!options.quiet) {
@@ -91,7 +94,8 @@ function trigger_command(name) {
 
 function make_filter(type) {
   var not_array = type === 'file' ? options.notfiles : options.notdirs,
-      good_array = type === 'file' ? options.files : options.dirs,
+      good_array = type === 'file' ? options.files : options.dirs
+
   not_array = (not_array || []).map(regex)
   good_array = (good_array || []).map(regex)
 
