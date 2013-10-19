@@ -1,126 +1,119 @@
-#!/usr/bin/env node
-
 var Watcher = require('watch-fs').Watcher,
-    nopt = require('nopt'),
     path = require('path'),
     spawn = require('child_process').spawn,
-    debounce = require('lodash.debounce'),
-    blocked = false,
-    queue = [],
-    noptions = {
-      root: Array,
-      files: Array,
-      dirs: Array,
-      notfiles: Array,
-      notdirs: Array,
-      wait: Number,
-      kill: Boolean,
-      quiet: Boolean,
-      help: Boolean,
-      version: Boolean
-    },
-    shorts = {
-      r: ['--root'],
-      d: ['--dirs'],
-      f: ['--files'],
-      w: ['--wait'],
-      D: ['--notdirs'],
-      F: ['--notfiles'],
-      q: ['--quiet'],
-      k: ['--kill'],
-      h: ['--help'],
-      v: ['--version']
-    },
-  options = nopt(noptions, shorts, process.argv),
-  command = options.argv.remain
+    debounce = require('lodash.debounce')
 
-if (options.version) return version()
-if (!command.length || options.help) return help()
-if (!options.root || !options.root.length) options.root = [process.cwd()]
-if (!options.wait) options.wait = 500
+exports.createJung = create_jung
+exports.Jung = Jung
 
-var watcher_options = { paths: options.root, filters: {
-        includeFile: make_filter('file'),
-        includeDir: make_filter('dir')
-      }
-    },
-    watcher = new Watcher(watcher_options)
+function Jung(options, command) {
+  if (!(this instanceof Jung)) return new Jung(options, command)
+  this.blocked = false,
+  this.queue = []
+  this.options = options
+  if (!this.options.wait) this.options.wait = 500
+  if (!this.options.root) this.options.root = [process.cwd()]
+  this.command = command
+  this.child = null
 
-watcher.on('any', debounce(trigger_command, options.wait))
-watcher.start(function (err) {
-  if (err) return console.error(err)
-  if (!options.quiet) process.stdout.write('jung is listening..\n')
-})
+  return this
+}
 
-function trigger_command(name) {
-  if (blocked) {
-    if (options.kill) {
-      queue = [name]
+Jung.prototype.version = function () {
+  var jung = require('./package.json')
+  process.stdout.write('jung version ' + jung.version + '\n')
+}
+
+Jung.prototype.help = function () {
+  var fs = require('fs')
+  this.version()
+  fs.createReadStream(path.join(__dirname, 'help.txt')).pipe(process.stdout)
+}
+
+Jung.prototype.execute = function (trigger_file) {
+  if (this.blocked) {
+    if (this.options.kill) {
+      this.queue = [trigger_file]
       process.stdout.write('** Killing old process..\n\n')
-      return child.kill()
+      return this.child.kill()
     }
     process.stdout.write('--Queueing new process\n')
-    return queue.push(name)
+    return this.queue.push(trigger_file)
   }
-  blocked = true
+  this.blocked = true
+
   var env = process.env,
-      this_command = command.map(replace_env)
+      command = this.command.map(replace_env)
+
   env.JUNG_FILE = name
 
-  process.stdout.write('** Running ``' + this_command.join(' ') + '``\n')
-  child = spawn(this_command[0],
-      this_command.slice(1),
+  process.stdout.write('** Running ``' + command.join(' ') + '``\n')
+  this.child = spawn(command[0],
+      command.slice(1),
       { env: env, cwd: process.cwd() })
 
-  child.on('close', finish_child)
+  this.child.on('close', finish_child)
 
-  if (!options.quiet) {
-    child.stdout.pipe(process.stdout)
-    child.stderr.pipe(process.stderr)
+  if (!this.options.quiet) {
+    this.child.stdout.pipe(process.stdout)
+    this.child.stderr.pipe(process.stderr)
   }
 
   function finish_child(code) {
-    if (code !== 0 && !options.quiet) process.stderr.write(
-        '\n** Command exited with code ' + code + '\n'
-    )
+    if (code !== 0 && !this.options.quiet) {
+      process.stderr.write('\n** Command exited with code ' + code + '\n')
+    }
+
     blocked = false
-    if (queue.length) trigger_command(queue.shift())
+    if (this.queue.length) this.execute(this.queue.shift())
   }
   function replace_env(str) {
-    return str.replace(/\$JUNG_FILE/g, name)
+    return str.replace(/\$JUNG_FILE/g, trigger_file)
   }
 
 }
 
-function make_filter(type) {
-  var not_array = type === 'file' ? options.notfiles : options.notdirs,
-      good_array = type === 'file' ? options.files : options.dirs
+Jung.prototype.start = function () {
+  var self = this,
+      watcher_options = { paths: this.options.root, filters: {
+          includeFile: make_filter('file'),
+          includeDir: make_filter('dir')
+        }
+      },
+      watcher = new Watcher(watcher_options)
 
-  not_array = (not_array || []).map(regex)
-  good_array = (good_array || []).map(regex)
+  watcher.on('any', debounce(self.execute.bind(self), options.wait))
+  watcher.start(function (err) {
+    if (err) return console.error(err)
+    if (!self.options.quiet) process.stdout.write('jung is listening..\n')
+  })
 
-  return function (path) {
-    for (var i = 0, l = good_array.length; i < l; ++i) {
-      if (good_array[i].test(path)) return true
+
+  function make_filter(type) {
+    var not_array = type === 'file' ?
+          self.options.notfiles : self.options.notdirs,
+        good_array = type === 'file' ?
+          self.options.files : self.options.dirs
+
+    not_array = (not_array || []).map(regex)
+    good_array = (good_array || []).map(regex)
+
+    return function (path) {
+      for (var i = 0, l = good_array.length; i < l; ++i) {
+        if (good_array[i].test(path)) return true
+      }
+      for (var i = 0, l = not_array.length; i < l; ++i) {
+        if (not_array[i].test(path)) return false
+      }
+      return !good_array.length
     }
-    for (var i = 0, l = not_array.length; i < l; ++i) {
-      if (not_array[i].test(path)) return false
+
+    function regex(str) {
+      return new RegExp(str)
     }
-    return !good_array.length
-  }
-
-  function regex(str) {
-    return new RegExp(str)
   }
 }
 
-function help() {
-  var fs = require('fs')
-  version()
-  fs.createReadStream(__dirname + '/help.txt').pipe(process.stdout)
-}
-
-function version() {
-  var jung = require('./package.json')
-  process.stdout.write('jung version ' + jung.version + '\n')
+function create_jung(options, command) {
+  return new Jung(options, command)
 }

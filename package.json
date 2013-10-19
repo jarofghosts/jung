@@ -1,10 +1,10 @@
 {
   "name": "jung",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "trigger commands on file change events",
   "preferGlobal": true,
   "bin": {
-    "jung": "./index.js"
+    "jung": "./bin/jung.js"
   },
   "main": "index.js",
   "scripts": {
