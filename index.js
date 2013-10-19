@@ -45,14 +45,19 @@ var watcher_options = { paths: options.root, filters: {
 
 watcher.on('any', debounce(trigger_command, options.wait))
 watcher.start(function (err) {
-  if (err) return console.log(err)
+  if (err) return console.error(err)
   if (options.verbose) process.stdout.write('jung is listening\n')
 })
 
-function trigger_command() {
-  if (blocked) return console.log('previous process still running')
+function trigger_command(name, type) {
+  if (blocked) return console.error('previous process still running')
   blocked = true
-  var child = spawn(command[0], command.slice(1))
+  var env = process.env
+  env.JUNG_FILE = name
+
+  var this_command = command.map(replace_env)
+
+  var child = spawn(this_command[0], this_command.slice(1), { env: env, cwd: process.cwd() })
   child.on('close', finish_child)
 
   if (options.verbose) {
@@ -63,6 +68,9 @@ function trigger_command() {
   function finish_child(code) {
     if (code !== 0) process.stderr.write('command exited with code ' + code)
     blocked = false
+  }
+  function replace_env(str) {
+    return str.replace(/\$JUNG_FILE/g, name)
   }
 
 }

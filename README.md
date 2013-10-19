@@ -11,6 +11,10 @@ or
 
 `jung -f '\.md' -- cat $JUNG_FILE | marked -o $JUNG_FILE.html`
 
+or
+
+`jung -r /var/log -- echo $JUNG_FILE changed!`
+
 or any other variety of neat stuff.
 
 ## usage
