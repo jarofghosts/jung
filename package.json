@@ -1,0 +1,22 @@
+{
+  "name": "jung",
+  "version": "0.0.0",
+  "description": "trigger commands on file change events",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "keywords": [
+    "synchronicity",
+    "development",
+    "utility",
+    "watch"
+  ],
+  "author": "jesse keane",
+  "license": "MIT",
+  "dependencies": {
+    "fs-watch": "0.0.1",
+    "nopt": "~2.1.2",
+    "lodash.debounce": "~2.2.1"
+  }
+}
