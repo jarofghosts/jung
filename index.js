@@ -10,7 +10,7 @@ function Jung(options, command) {
   if (!(this instanceof Jung)) return new Jung(options, command)
   this.blocked = false,
   this.queue = []
-  this.options = options
+  this.options = options || {}
   if (!this.options.wait) this.options.wait = 500
   if (!this.options.root) this.options.root = [process.cwd()]
   this.command = command

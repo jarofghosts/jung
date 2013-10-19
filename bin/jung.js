@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var Jung = require('../'),
+var Jung = require('../').Jung,
     nopt = require('nopt'),
     noptions = {
       root: Array,
@@ -29,7 +29,7 @@ var Jung = require('../'),
   options = nopt(noptions, shorts, process.argv),
   command = options.argv.remain
 
-if (options.version) return Jung.version()
-if (!command.length || options.help) return Jung.help()
+if (options.version) return Jung().version()
+if (!command.length || options.help) return Jung().help()
 
 return new Jung(options, command)
