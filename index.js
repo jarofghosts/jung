@@ -35,13 +35,16 @@ Jung.prototype.help = function () {
 }
 
 Jung.prototype.execute = function (trigger_file) {
+  this.emit('triggered')
   if (this.blocked) {
     if (this.options.kill) {
       this.queue = [trigger_file]
       process.stdout.write('** Killing old process..\n\n')
+      this.emit('killing')
       return this.child.kill()
     }
     process.stdout.write('--Queueing new process\n')
+    this.emit('queueing')
     return this.queue.push(trigger_file)
   }
   this.blocked = true
@@ -52,6 +55,7 @@ Jung.prototype.execute = function (trigger_file) {
   env.JUNG_FILE = trigger_file
 
   process.stdout.write('** Running ``' + command.join(' ') + '``\n')
+  this.emit('running')
   this.child = spawn(command[0],
       command.slice(1),
       { env: env, cwd: process.cwd() })
@@ -68,6 +72,7 @@ Jung.prototype.execute = function (trigger_file) {
       process.stderr.write('\n** Command exited with code ' + code + '\n')
     }
 
+    this.emit('ran')
     this.blocked = false
     if (this.queue.length) this.execute(this.queue.shift())
   }
@@ -89,6 +94,7 @@ Jung.prototype.start = function () {
   watcher.on('any', debounce(self.execute.bind(self), self.options.wait))
   watcher.start(function (err) {
     if (err) return console.error(err)
+    this.emit('started')
     if (!self.options.quiet) process.stdout.write('jung is listening..\n')
   })
 
