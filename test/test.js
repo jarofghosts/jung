@@ -10,3 +10,9 @@ jung.execute('woo')
 jung.child.stdout.on('data', function (data) {
   assert.equal(data.toString(), 'hello\n')
 })
+
+jung = new Jung(null, 'echo \$JUNG_FILE'.split(' '))
+jung.execute('wee')
+jung.child.stdout.on('data', function (data) {
+  assert.equal(data.toString(), 'wee\n')
+})
