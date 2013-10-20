@@ -11,6 +11,7 @@ exports.Jung = Jung
 function Jung(options, command) {
   if (!(this instanceof Jung)) return new Jung(options, command)
   this.blocked = false,
+  this.watcher = null
   this.queue = []
   this.options = options || {}
   if (!this.options.wait) this.options.wait = 500
@@ -41,10 +42,13 @@ Jung.prototype.execute = function (trigger_file) {
       this.queue = [trigger_file]
       process.stdout.write('** Killing old process..\n\n')
       this.emit('killing')
-      return this.child.kill()
+      if (this.child) {
+        return this.child.kill()
+      }
+      return this.blocked = false
     }
     process.stdout.write('--Queueing new process\n')
-    this.emit('queueing')
+    this.emit('queueing', trigger_file)
     return this.queue.push(trigger_file)
   }
   this.blocked = true
@@ -54,8 +58,11 @@ Jung.prototype.execute = function (trigger_file) {
 
   env.JUNG_FILE = trigger_file
 
-  process.stdout.write('** Running ``' + command.join(' ') + '``\n')
-  this.emit('running')
+  if (!this.options.quiet) {
+    process.stdout.write('** Running ``' + command.join(' ') + '``\n')
+  }
+
+  this.emit('running', command.join(' '))
   this.child = spawn(command[0],
       command.slice(1),
       { env: env, cwd: process.cwd() })
@@ -72,7 +79,7 @@ Jung.prototype.execute = function (trigger_file) {
       process.stderr.write('\n** Command exited with code ' + code + '\n')
     }
 
-    this.emit('ran')
+    this.emit('ran', command.join(' '))
     this.blocked = false
     if (this.queue.length) this.execute(this.queue.shift())
   }
@@ -88,13 +95,13 @@ Jung.prototype.start = function () {
           includeFile: make_filter('file'),
           includeDir: make_filter('dir')
         }
-      },
-      watcher = new Watcher(watcher_options)
-
-  watcher.on('any', debounce(self.execute.bind(self), self.options.wait))
-  watcher.start(function (err) {
+      }
+  
+  self.watcher = new Watcher(watcher_options)
+  self.watcher.on('any', debounce(self.execute.bind(self), self.options.wait))
+  self.watcher.start(function (err) {
     if (err) return console.error(err)
-    this.emit('started')
+    self.emit('started')
     if (!self.options.quiet) process.stdout.write('jung is listening..\n')
   })
 
@@ -121,6 +128,18 @@ Jung.prototype.start = function () {
     function regex(str) {
       return new RegExp(str)
     }
+  }
+}
+
+Jung.prototype.stop = function () {
+  if (this.blocked) {
+    this.child.kill()
+    return this.child.on('close', stop)
+  }
+  stop()
+
+  function stop() {
+    this.watcher && this.watcher.stop()
   }
 }
 
