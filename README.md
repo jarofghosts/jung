@@ -36,6 +36,9 @@ Options are
 * `--version, -v` Print jung version
 * `--help, -h` This thing.
 
+Commands are anything you can run in your shell. Including a shell script, for
+more complicated things!
+
 ## notes
 
 When your command is fired, `$JUNG_FILE` will be available as an environment
