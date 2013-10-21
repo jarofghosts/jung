@@ -5,6 +5,10 @@ jung
 
 lightweight, flexible file watching
 
+## installation
+
+`npm install -g jung`
+
 ## why
 
 so you can do `jung -f '\.js$' -- browserify main.js -o bundle.js`
