@@ -28,6 +28,7 @@
   "dependencies": {
     "nopt": "~2.1.2",
     "lodash.debounce": "~2.2.1",
-    "watch-fs": "0.0.6"
+    "watch-fs": "0.0.6",
+    "bash-color": "0.0.3"
   }
 }

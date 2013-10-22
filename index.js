@@ -1,6 +1,7 @@
 var Watcher = require('watch-fs').Watcher,
     path = require('path'),
     spawn = require('child_process').spawn,
+    color = require('bash-color'),
     debounce = require('lodash.debounce'),
     EE = require('events').EventEmitter,
     inherits = require('util').inherits
@@ -26,7 +27,7 @@ inherits(Jung, EE)
 
 Jung.prototype.version = function () {
   var jung = require('./package.json')
-  process.stdout.write('jung version ' + jung.version + '\n')
+  process.stdout.write(color.yellow('jung version ' + jung.version) + '\n')
 }
 
 Jung.prototype.help = function () {
@@ -40,14 +41,14 @@ Jung.prototype.execute = function (trigger_file) {
   if (this.blocked) {
     if (this.options.kill) {
       this.queue = [trigger_file]
-      process.stdout.write('** Killing old process..\n\n')
+      process.stdout.write(color.red('** Killing old process..') + '\n\n')
       this.emit('killing')
       if (this.child) {
         return this.child.kill()
       }
       return this.blocked = false
     }
-    process.stdout.write('--Queueing new process\n')
+    process.stdout.write(color.blue('--Queueing new process') + '\n')
     this.emit('queueing', trigger_file)
     return this.queue.push(trigger_file)
   }
@@ -59,7 +60,8 @@ Jung.prototype.execute = function (trigger_file) {
   env.JUNG_FILE = trigger_file
 
   if (!this.options.quiet) {
-    process.stdout.write('** Running ``' + command.join(' ') + '``\n')
+    process.stdout.write(color.green('** Running `' + command.join(' ') + 
+      '`') + '\n')
   }
 
   this.emit('running', command.join(' '))
@@ -76,7 +78,8 @@ Jung.prototype.execute = function (trigger_file) {
 
   function finish_child(code) {
     if (code !== 0 && !this.options.quiet) {
-      process.stderr.write('\n** Command exited with code ' + code + '\n')
+      process.stderr.write('\n' + 
+          color.red('** Command exited with code ' + code) + '\n')
     }
 
     this.emit('ran', command.join(' '))
@@ -102,7 +105,8 @@ Jung.prototype.start = function () {
   self.watcher.start(function (err) {
     if (err) return console.error(err)
     self.emit('started')
-    if (!self.options.quiet) process.stdout.write('jung is listening..\n')
+    if (!self.options.quiet) process.stdout.write(
+        color.yellow('jung is listening..') + '\n')
   })
 
 
