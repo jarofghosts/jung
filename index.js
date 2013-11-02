@@ -11,11 +11,11 @@ exports.Jung = Jung
 
 function Jung(options, command) {
   if (!(this instanceof Jung)) return new Jung(options, command)
-  this.blocked = false,
+  this.blocked = false
   this.watcher = null
   this.queue = []
   this.options = options || {}
-  if (!this.options.wait) this.options.wait = 500
+  if (!this.options.wait) this.options.wait = 300
   if (!this.options.root) this.options.root = [process.cwd()]
   this.command = command
   this.child = null
