@@ -48,7 +48,7 @@ Jung.prototype.execute = function (trigger_file) {
       }
       return this.blocked = false
     }
-    process.stdout.write(color.blue('--Queueing new process') + '\n')
+    process.stdout.write(color.blue('-- Queueing new process') + '\n')
     this.emit('queueing', trigger_file)
     return this.queue.push(trigger_file)
   }
@@ -79,7 +79,7 @@ Jung.prototype.execute = function (trigger_file) {
   function finish_child(code) {
     if (code !== 0 && !this.options.quiet) {
       process.stderr.write('\n' + 
-          color.red('** Command exited with code ' + code) + '\n')
+          color.red('@@ Command exited with code ' + code) + '\n')
     }
 
     this.emit('ran', command.join(' '))
