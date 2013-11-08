@@ -69,7 +69,7 @@ Jung.prototype.execute = function (trigger_file) {
       command.slice(1),
       { env: env, cwd: process.cwd() })
 
-  this.child.on('close', finish_child.bind(this))
+  this.child.on('exit', finish_child.bind(this))
 
   if (!this.options.quiet) {
     this.child.stdout.pipe(process.stdout)
@@ -77,7 +77,7 @@ Jung.prototype.execute = function (trigger_file) {
   }
 
   function finish_child(code) {
-    if (code !== 0 && !this.options.quiet) {
+    if (code && !this.options.quiet) {
       process.stderr.write('\n' + 
           color.red('@@ Command exited with code ' + code) + '\n')
     }
@@ -138,7 +138,7 @@ Jung.prototype.start = function () {
 Jung.prototype.stop = function () {
   if (this.blocked) {
     this.child.kill()
-    return this.child.on('close', stop)
+    return this.child.on('exit', stop)
   }
   stop()
 
