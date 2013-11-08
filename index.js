@@ -13,6 +13,7 @@ function Jung(options, command) {
   if (!(this instanceof Jung)) return new Jung(options, command)
   this.blocked = false
   this.watcher = null
+  this.timeout = null
   this.queue = []
   this.options = options || {}
   if (!this.options.wait) this.options.wait = 300
@@ -44,6 +45,7 @@ Jung.prototype.execute = function (trigger_file) {
       process.stdout.write(color.red('** Killing old process..') + '\n\n')
       this.emit('killing')
       if (this.child) {
+        this.timeout = setTimeout(force_kill, this.options.timeout)
         return this.child.kill()
       }
       return this.blocked = false
@@ -76,6 +78,10 @@ Jung.prototype.execute = function (trigger_file) {
     this.child.stderr.pipe(process.stderr)
   }
 
+  function force_kill() {
+    this.child && this.child.kill('SIGKILL')
+  }
+
   function finish_child(code) {
     if (code && !this.options.quiet) {
       process.stderr.write('\n' + 
@@ -84,6 +90,7 @@ Jung.prototype.execute = function (trigger_file) {
 
     this.emit('ran', command.join(' '))
     this.blocked = false
+    this.timeout && clearTimeout(this.timeout)
     if (this.queue.length) this.execute(this.queue.shift())
   }
   function replace_env(str) {

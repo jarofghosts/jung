@@ -34,7 +34,7 @@ Options are
 * `--notdirs, -D <regex>` Ignore sub directories matching `<regex>`
 * `--files, -f <regex>` Only watch files matching `<regex>`
 * `--notfiles, -F <regex>` Ignore files matching `<regex>`
-* `--wait, -w <time>` Debounce reaction for `<time>` ms, default 500
+* `--wait, -w <time>` Debounce reaction for `<time>` ms, default 300
 * `--kill, -k` Rather than queueing command runs, kill child process
 * `--quiet, -q` Do not show output from `<command>`
 * `--version, -v` Print jung version
