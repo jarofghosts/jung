@@ -82,7 +82,7 @@ in the options object and they all default to `false`.
 
 The second argument is the `command` which can be either a string of the
 command to be run or an array of each part of the command (ie 
-`command.split(' ')`
+`command.split(' ')`)
 
 ## license
 
