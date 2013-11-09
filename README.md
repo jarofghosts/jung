@@ -57,7 +57,33 @@ works really well with scripts, but for one-liners you will need to escape the
 
 ### good
 
-`jung -- echo WHOA CHECK OUT \$JUNG_FILE`
+`jung -- echo WHOA CHECKOUT \$JUNG_FILE` || `jung -- echo 'wee $JUNG_FILE'`
+
+## as a module
+
+```js
+var jung = require('jung')
+
+options = { files: ['\.js$', /\.md$/] }
+command = 'sh recompile_file.sh $JUNG_FILE'
+
+jung.createJung(options, command).start()
+```
+
+## module notes
+
+Options accepts an object of options with keys matching the long form of
+any acceptable commandline flag, for example `files`, `notfiles`, `wait`, etc.
+
+`files`, `notfiles`, `dirs`, and `notdirs` each accept an array of either
+strings or RegExps or any combination thereof.
+
+Any commandline flags that do not accept an argument require a boolean value
+in the options object and they all default to `false`.
+
+The second argument is the `command` which can be either a string of the
+command to be run or an array of each part of the command (ie 
+`command.split(' ')`
 
 ## license
 

@@ -14,12 +14,14 @@ function Jung(options, command) {
   this.blocked = false
   this.watcher = null
   this.timeout = null
+  this.child = null
   this.queue = []
   this.options = options || {}
+  this.command = Array.isArray(command) ? command : command.split(' ')
+
   if (!this.options.wait) this.options.wait = 300
   if (!this.options.root) this.options.root = [process.cwd()]
-  this.command = command
-  this.child = null
+  if (!this.options.timeout) this.options.timeout = 5000
 
   return this
 }
@@ -45,8 +47,7 @@ Jung.prototype.execute = function (trigger_file) {
       process.stdout.write(color.red('** Killing old process..') + '\n\n')
       this.emit('killing')
       if (this.child) {
-        this.timeout = setTimeout(force_kill.bind(this),
-            this.options.timeout || 5000)
+        this.timeout = setTimeout(force_kill.bind(this), this.options.timeout)
         return this.child.kill()
       }
       return this.blocked = false
@@ -142,6 +143,7 @@ Jung.prototype.start = function () {
     }
 
     function regex(str) {
+      if (str instanceof RegExp) return str
       return new RegExp(str)
     }
   }
