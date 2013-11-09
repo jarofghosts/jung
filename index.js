@@ -45,7 +45,8 @@ Jung.prototype.execute = function (trigger_file) {
       process.stdout.write(color.red('** Killing old process..') + '\n\n')
       this.emit('killing')
       if (this.child) {
-        this.timeout = setTimeout(force_kill, this.options.timeout)
+        this.timeout = setTimeout(force_kill.bind(this),
+            this.options.timeout || 5000)
         return this.child.kill()
       }
       return this.blocked = false
@@ -90,7 +91,11 @@ Jung.prototype.execute = function (trigger_file) {
 
     this.emit('ran', command.join(' '))
     this.blocked = false
-    this.timeout && clearTimeout(this.timeout)
+    if (this.timeout) {
+      clearTimeout(this.timeout)
+      this.timeout = null
+    }
+
     if (this.queue.length) this.execute(this.queue.shift())
   }
   function replace_env(str) {
