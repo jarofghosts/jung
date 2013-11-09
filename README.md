@@ -62,10 +62,9 @@ works really well with scripts, but for one-liners you will need to escape the
 ## as a module
 
 ```js
-var jung = require('jung')
-
-options = { files: ['\.js$', /\.md$/] }
-command = 'sh recompile_file.sh $JUNG_FILE'
+var jung = require('jung'),
+    options = { files: ['\.js$', /\.md$/], quiet: true },
+    command = 'sh recompile_file.sh $JUNG_FILE'
 
 jung.createJung(options, command).start()
 ```
