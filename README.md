@@ -35,10 +35,11 @@ Options are
 * `--files, -f <regex>` Only watch files matching `<regex>`
 * `--notfiles, -F <regex>` Ignore files matching `<regex>`
 * `--wait, -w <time>` Debounce reaction for `<time>` ms, default 300
+* `--timeout, -t <time>` Wait `<time>` ms after SIGTERM to SIGKILL, default 500
 * `--kill, -k` Rather than queueing command runs, kill child process
 * `--quiet, -q` Do not show output from `<command>`
 * `--version, -v` Print jung version
-* `--help, -h` This thing.
+* `--help, -h` Print help
 
 Commands are anything you can run in your shell. Including a shell script, for
 more complicated things!
