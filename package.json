@@ -27,8 +27,8 @@
   "license": "MIT",
   "dependencies": {
     "nopt": "~2.1.2",
-    "lodash.debounce": "~2.2.1",
     "watch-fs": "0.0.7",
-    "bash-color": "0.0.3"
+    "bash-color": "0.0.3",
+    "debounce": "0.0.3"
   }
 }
