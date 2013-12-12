@@ -11,6 +11,7 @@ exports.Jung = Jung
 
 function Jung(options, command) {
   if (!(this instanceof Jung)) return new Jung(options, command)
+  command = command || ''
   this.blocked = false
   this.watcher = null
   this.timeout = null
