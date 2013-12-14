@@ -2,6 +2,10 @@
 
 var Jung = require('../').Jung,
     nopt = require('nopt'),
+    fs = require('fs'),
+    path = require('path'),
+    color = require('bash-color'),
+    jung = require('../package.json')
     noptions = {
       root: Array,
       files: Array,
@@ -31,7 +35,18 @@ var Jung = require('../').Jung,
   options = nopt(noptions, shorts, process.argv),
   command = options.argv.remain
 
-if (options.version) return Jung().version()
-if (!command.length || options.help) return Jung().help()
+if (options.version) return version()
+if (options.help) return help()
 
 return new Jung(options, command).start()
+
+function version() {
+  return process.stdout.write(color.yellow('jung version ' + jung.version) +
+    '\n')
+}
+
+function help() {
+  version()
+  return fs.createReadStream(path.join(__dirname, '../help.txt'))
+    .pipe(process.stdout)
+}

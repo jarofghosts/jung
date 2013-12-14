@@ -11,7 +11,7 @@ exports.Jung = Jung
 
 function Jung(options, command) {
   if (!(this instanceof Jung)) return new Jung(options, command)
-  command = command || ''
+  command = command || []
   this.blocked = false
   this.watcher = null
   this.timeout = null
@@ -28,17 +28,6 @@ function Jung(options, command) {
 }
 
 inherits(Jung, EE)
-
-Jung.prototype.version = function () {
-  var jung = require('./package.json')
-  process.stdout.write(color.yellow('jung version ' + jung.version) + '\n')
-}
-
-Jung.prototype.help = function () {
-  var fs = require('fs')
-  this.version()
-  fs.createReadStream(path.join(__dirname, 'help.txt')).pipe(process.stdout)
-}
 
 Jung.prototype.execute = function (trigger_file) {
   this.emit('triggered')
