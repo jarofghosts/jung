@@ -1,5 +1,4 @@
 var Watcher = require('watch-fs').Watcher,
-    path = require('path'),
     spawn = require('child_process').spawn,
     color = require('bash-color'),
     debounce = require('debounce'),
