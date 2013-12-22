@@ -36,11 +36,13 @@ function test_queue() {
   jung.execute('waa')
 }
 function test_kill() {
-  jung = new Jung({ kill: true }, 'echo \$JUNG_FILE')
+  jung = new Jung({ kill: true, timeout: 1 }, 'echo \$JUNG_FILE')
   var bad = setTimeout(assert.ok.bind(null, false), 500)
   jung.blocked = true
+  jung.child = { kill: function () {} }
   jung.on('killing', function () {
     clearTimeout(bad)
+    jung.blocked = false
     test_quiet()
   })
   jung.execute('heee')
