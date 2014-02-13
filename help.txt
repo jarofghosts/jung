@@ -11,5 +11,6 @@ Options are:
 --timeout, -t <time>    |  Wait <time> ms after SIGTERM to SIGKILL, default 500
 --kill, -k              |  Kill command for subsequent triggers
 --quiet, -q             |  Do not show output from <command>
+--run, -R               |  Run <command> when jung first starts
 --version, -v           |  Print jung version
 --help, -h              |  This thing.
