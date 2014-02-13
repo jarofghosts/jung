@@ -4,7 +4,6 @@ var watcher = require('chokidar'),
     debounce = require('debounce'),
     EE = require('events').EventEmitter,
     path = require('path'),
-    fs = require('fs'),
     inherits = require('util').inherits
 
 exports.createJung = create_jung
