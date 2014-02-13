@@ -3,6 +3,7 @@ var Watcher = require('watch-fs').Watcher,
     color = require('bash-color'),
     debounce = require('debounce'),
     EE = require('events').EventEmitter,
+    path = require('path'),
     inherits = require('util').inherits
 
 exports.createJung = create_jung
@@ -54,12 +55,21 @@ Jung.prototype.execute = function jung_execute(trigger_file) {
   return self.queue.push(trigger_file)
 
   function do_execute() {
+    var filename = path.basename(trigger_file),
+        extension = path.extname(filename),
+        dirname = path.dirname(trigger_file),
+        barename = filename.slice(0, -extension.length)
+
     self.blocked = true
 
     var env = process.env,
         command = self.command.map(replace_env)
 
     env.JUNG_FILE = trigger_file
+    env.JUNG_FILENAME = filename
+    env.JUNG_EXTENSION = extension
+    env.JUNG_DIR = dirname
+    env.JUNG_BARENAME = barename
 
     self.emit('running', command.join(' '))
     self.child = spawn(command[0],
@@ -73,6 +83,14 @@ Jung.prototype.execute = function jung_execute(trigger_file) {
       self.child.stderr.pipe(process.stderr)
     }
 
+    function replace_env(str) {
+      return str.replace(/\$JUNG_FILENAME/g, filename)
+                .replace(/\$JUNG_FILE/g, trigger_file)
+                .replace(/\$JUNG_EXTENSION/g, extension)
+                .replace(/\$JUNG_DIR/g, dirname)
+                .replace(/\$JUNG_BARENAME/g, barename)
+    }
+
     function finish_child(code) {
       self.emit('ran', command.join(' '), code)
       self.blocked = false
@@ -84,10 +102,6 @@ Jung.prototype.execute = function jung_execute(trigger_file) {
 
   function force_kill() {
     self.child && self.child.kill('SIGKILL')
-  }
-
-  function replace_env(str) {
-    return str.replace(/\$JUNG_FILE/g, trigger_file)
   }
 }
 

@@ -18,11 +18,14 @@ jung.child.stdout.on('data', function (data) {
 })
 jung.on('ran', test_env)
 function test_env() {
-  jung = new Jung(null, 'echo \$JUNG_FILE'.split(' '))
+  jung = new Jung(null, 
+      'echo \$JUNG_FILE|\$JUNG_FILENAME|\$JUNG_EXTENSION|\$JUNG_DIR|' +
+      '\$JUNG_BARENAME'.split(' ')
+    )
   jung.on('ran', test_queue)
-  jung.execute('wee')
+  jung.execute('/path/wee.exe')
   jung.child.stdout.on('data', function (data) {
-    assert.equal(data.toString(), 'wee\n')
+    assert.equal(data.toString(), '/path/wee.exe|wee.exe|.exe|/path|wee\n')
   })
 }
 function test_queue() {

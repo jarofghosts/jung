@@ -46,10 +46,17 @@ more complicated things!
 
 ## notes
 
-When your command is fired, `$JUNG_FILE` will be available as an environment
-variable containing the full path to the file that triggered the command. This
-works really well with scripts, but for one-liners you will need to escape the
-`$` to prevent your shell from replacing it too early.
+When your command is fired, the following environment variables will be
+available:
+
+* `$JUNG_FILE` - Full path to file that triggered the command
+* `$JUNG_DIR` - The directory the trigger file lives in
+* `$JUNG_FILENAME` - Just the filename part of the trigger file
+* `$JUNG_EXTENSION` - Just the extension of the trigger file
+* `$JUNG_BARENAME` - Trigger filename with no extension
+
+This works really well with scripts, but for one-liners you will need to escape
+the `$` to prevent your shell from replacing it too early.
 
 ### bad
 
