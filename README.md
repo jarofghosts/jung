@@ -38,6 +38,7 @@ Options are
 * `--timeout, -t <time>` Wait `<time>` ms after SIGTERM to SIGKILL, default 500
 * `--kill, -k` Rather than queueing command runs, kill child process
 * `--quiet, -q` Do not show output from `<command>`
+* `--run, -R` Run `<command>` at first start
 * `--version, -v` Print jung version
 * `--help, -h` Print help
 
@@ -54,6 +55,9 @@ available:
 * `$JUNG_FILENAME` - Just the filename part of the trigger file
 * `$JUNG_EXTENSION` - Just the extension of the trigger file
 * `$JUNG_BARENAME` - Trigger filename with no extension
+
+If you run jung with `--run` these environment variables will be blank strings
+when the initial execution occurs.
 
 This works really well with scripts, but for one-liners you will need to escape
 the `$` to prevent your shell from replacing it too early.

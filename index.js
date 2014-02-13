@@ -1,9 +1,10 @@
-var Watcher = require('watch-fs').Watcher,
+var watcher = require('chokidar'),
     spawn = require('child_process').spawn,
     color = require('bash-color'),
     debounce = require('debounce'),
     EE = require('events').EventEmitter,
     path = require('path'),
+    fs = require('fs'),
     inherits = require('util').inherits
 
 exports.createJung = create_jung
@@ -21,7 +22,7 @@ function Jung(options, command) {
   this.command = Array.isArray(command) ? command : command.split(' ')
 
   if (!this.options.wait) this.options.wait = 300
-  if (!this.options.root) this.options.root = [process.cwd()]
+  if (!this.options.root) this.options.root = process.cwd()
   if (!this.options.timeout) this.options.timeout = 5000
 
   if (!this.options.quiet) {
@@ -36,7 +37,7 @@ function Jung(options, command) {
 
 inherits(Jung, EE)
 
-Jung.prototype.execute = function jung_execute(trigger_file) {
+Jung.prototype.execute = function Jung$execute(trigger_file) {
   var self = this
 
   self.emit('triggered')
@@ -105,64 +106,63 @@ Jung.prototype.execute = function jung_execute(trigger_file) {
   }
 }
 
-Jung.prototype.start = function jung_start() {
+Jung.prototype.start = function Jung$start() {
   var self = this,
       watcher_options = {}
 
-  watcher_options.paths = this.options.root
-  watcher_options.filters = {
-    includeFile: make_filter('file'),
-    includeDir: make_filter('dir')
-  }
-  
-  self.watcher = new Watcher(watcher_options)
-  self.watcher.on('any', debounce(self.execute.bind(self), self.options.wait))
-  self.watcher.start(on_watcher_started)
+  watcher_options.persistent = true
+  watcher_options.ignoreInitial = true
+  watcher_options.ignored = file_filter
 
-  function make_filter(type) {
-    var not_array = type === 'file' ?
-          self.options.notfiles : self.options.notdirs,
-        good_array = type === 'file' ?
-          self.options.files : self.options.dirs
+  self.watcher = watcher.watch(this.options.root, watcher_options)
+  self.watcher.on('all', debounce(filter_event, self.options.wait))
+
+  self.emit('started')
+  if (self.options.quiet) return
+  process.stdout.write(color.yellow('jung is listening..') + '\n')
+
+  if (self.options.run) self.execute('')
+
+  function filter_event(event, path) {
+    return self.execute(path)
+  }
+
+  function file_filter(path, stats) {
+    if (!stats) return false
+    var opts = self.options,
+        is_file = stats.isFile(),
+        not_array = is_file ? opts.notfiles : opts.notdirs
+        good_array = is_file ? opts.files : opts.dirs
 
     not_array = (not_array || []).map(regex)
     good_array = (good_array || []).map(regex)
 
-    return function compile_filter(path) {
-      var i,
-          l
-
-      for (i = 0, l = good_array.length; i < l; ++i) {
-        if (good_array[i].test(path)) return true
-      }
-      for (i = 0, l = not_array.length; i < l; ++i) {
-        if (not_array[i].test(path)) return false
-      }
-      return !good_array.length
+    for (var i = 0, l = good_array.length; i < l; ++i) {
+      if (good_array[i].test(path)) return false
+    }
+    for (i = 0, l = not_array.length; i < l; ++i) {
+      if (not_array[i].test(path)) return true
     }
 
-    function regex(str) {
-      if (str instanceof RegExp) return str
-      return new RegExp(str)
-    }
+    return good_array.length
   }
 
-  function on_watcher_started(err) {
-    if (err) return console.error(err)
-    self.emit('started')
-    if (self.options.quiet) return
-    process.stdout.write(color.yellow('jung is listening..') + '\n')
+  function regex(str) {
+    if (str instanceof RegExp) return str
+    return new RegExp(str)
   }
 }
 
-Jung.prototype.stop = function jung_stop() {
-  if (!this.blocked) return stop()
+Jung.prototype.stop = function Jung$stop() {
+  var self = this
 
-  this.child.on('exit', stop)
-  this.child.kill()
+  if (!self.blocked) return stop()
+
+  self.child.on('exit', stop)
+  self.child.kill()
 
   function stop() {
-    this.watcher && this.watcher.stop()
+    self.watcher && self.watcher.close()
   }
 }
 
