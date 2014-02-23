@@ -38,7 +38,7 @@ var Jung = require('../').Jung,
   command = options.argv.remain
 
 if (options.version) return version()
-if (options.help) return help()
+if (options.help || !command.length) return help()
 
 return new Jung(options, command).start()
 
