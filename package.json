@@ -1,6 +1,6 @@
 {
   "name": "jung",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "trigger commands on file change events",
   "preferGlobal": true,
   "bin": {
