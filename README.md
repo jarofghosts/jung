@@ -83,16 +83,16 @@ jung.createJung(options, command).start()
 ## module notes
 
 Options accepts an object of options with keys matching the long form of
-any acceptable commandline flag, for example `files`, `notfiles`, `wait`, etc.
+any acceptable command line flag, for example `files`, `notfiles`, `wait`, etc.
 
 `files`, `notfiles`, `dirs`, and `notdirs` each accept an array of either
 strings or RegExps or any combination thereof.
 
-Any commandline flags that do not accept an argument require a boolean value
+Any command line flags that do not accept an argument require a boolean value
 in the options object and they all default to `false`.
 
 The second argument is the `command` which can be either a string of the
-command to be run or an array of each part of the command (ie 
+command to be run or an array of each part of the command (i.e. 
 `command.split(' ')`)
 
 ## license
