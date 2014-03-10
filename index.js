@@ -1,10 +1,11 @@
-var watcher = require('chokidar'),
-    spawn = require('child_process').spawn,
-    color = require('bash-color'),
-    debounce = require('debounce'),
-    EE = require('events').EventEmitter,
-    path = require('path'),
-    inherits = require('util').inherits
+var watcher = require('chokidar')
+  , spawn = require('child_process').spawn
+  , fs = require('fs')
+  , color = require('bash-color')
+  , debounce = require('debounce')
+  , EE = require('events').EventEmitter
+  , path = require('path')
+  , inherits = require('util').inherits
 
 exports.createJung = create_jung
 exports.Jung = Jung
@@ -55,15 +56,15 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
   return self.queue.push(trigger_file)
 
   function do_execute() {
-    var filename = path.basename(trigger_file),
-        extension = path.extname(filename),
-        dirname = path.dirname(trigger_file),
-        barename = filename.slice(0, -extension.length)
+    var filename = path.basename(trigger_file)
+      , extension = path.extname(filename)
+      , dirname = path.dirname(trigger_file)
+      , barename = filename.slice(0, -extension.length)
 
     self.blocked = true
 
-    var env = process.env,
-        command = self.command.map(replace_env)
+    var env = process.env
+      , command = self.command.map(replace_env)
 
     env.JUNG_FILE = trigger_file
     env.JUNG_FILENAME = filename
@@ -72,9 +73,11 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
     env.JUNG_BARENAME = barename
 
     self.emit('running', command.join(' '))
-    self.child = spawn(command[0],
-        command.slice(1),
-        { env: env, cwd: process.cwd() })
+    self.child = spawn(
+        command[0]
+      , command.slice(1)
+      , {env: env, cwd: process.cwd()}
+    )
 
     self.child.on('exit', finish_child)
 
@@ -106,8 +109,13 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
 }
 
 Jung.prototype.start = function Jung$start() {
-  var self = this,
-      watcher_options = {}
+  var self = this
+    , watcher_options = {}
+
+  if (!fs.existsSync(self.options.root)) {
+    display_error('!! Root dir `' + self.options.root + '` does not exist !!')
+    return process.exit(1)
+  }
 
   watcher_options.persistent = true
   watcher_options.ignoreInitial = true
@@ -128,10 +136,10 @@ Jung.prototype.start = function Jung$start() {
 
   function file_filter(path, stats) {
     if (!stats) return false
-    var opts = self.options,
-        is_file = stats.isFile(),
-        not_array = is_file ? opts.notfiles : opts.notdirs
-        good_array = is_file ? opts.files : opts.dirs
+    var opts = self.options
+      , is_file = stats.isFile()
+      , not_array = is_file ? opts.notfiles : opts.notdirs
+      , good_array = is_file ? opts.files : opts.dirs
 
     not_array = (not_array || []).map(regex)
     good_array = (good_array || []).map(regex)
@@ -184,4 +192,8 @@ function display_queue() {
 function display_ran(command, code) {
   if (!code) return
   process.stderr.write(color.red('@@ Command exited with code ' + code) + '\n')
+}
+
+function display_error(error) {
+  process.stderr.write(color.red(error) + '\n')
 }
