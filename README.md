@@ -47,6 +47,21 @@ more complicated things!
 
 ## notes
 
+When using jung as part of an npm run script, you will need to escape any `\`
+in order to avoid JSON parsing errors.
+
+### example
+
+```js
+{
+  // ...
+  "scripts": {
+    "watch-md": "jung -f '\\.md$' -- make html"
+  }
+  // ...
+}
+```
+
 When your command is fired, the following environment variables will be
 available:
 
