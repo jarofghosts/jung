@@ -29,6 +29,7 @@
     "nopt": "2.1.2",
     "bash-color": "0.0.3",
     "debounce": "0.0.3",
-    "chokidar": "0.8.1"
+    "node-watch": "0.3.4",
+    "subdirs": "0.0.0"
   }
 }

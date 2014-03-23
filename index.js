@@ -1,5 +1,6 @@
-var watcher = require('chokidar')
+var watcher = require('node-watch')
   , spawn = require('child_process').spawn
+  , subdirs = require('subdirs')
   , fs = require('fs')
   , color = require('bash-color')
   , debounce = require('debounce')
@@ -19,6 +20,8 @@ function Jung(options, command) {
   this.child = null
   this.queue = []
   this.options = options || {}
+  this.options.notdirs = this.options.notdirs || []
+  this.options.notdirs.push(/\.git/)
   this.command = Array.isArray(command) ? command : command.split(' ')
 
   if (!this.options.wait) this.options.wait = 300
@@ -110,34 +113,40 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
 
 Jung.prototype.start = function Jung$start() {
   var self = this
-    , watcher_options = {}
 
   if (!fs.existsSync(self.options.root)) {
     display_error('!! Root dir `' + self.options.root + '` does not exist !!')
     return process.exit(1)
   }
 
-  watcher_options.persistent = true
-  watcher_options.ignoreInitial = true
-  watcher_options.ignored = file_filter
+  subdirs(self.options.root, start_jung)
 
-  self.watcher = watcher.watch(this.options.root, watcher_options)
-  self.watcher.on('all', debounce(filter_event, self.options.wait))
+  function start_jung(err, dirs) {
+    dirs = dirs.filter(function filter_dirs(path) {
+      return file_filter(false, path)
+    })
 
-  self.emit('started')
-  if (self.options.quiet) return
-  process.stdout.write(color.yellow('jung is listening..') + '\n')
+    self.watcher = watcher(
+        dirs.concat(self.options.root)
+      , {recursive: false}
+      , debounce(filter_event, self.options.wait)
+    )
 
-  if (self.options.run) self.execute('')
+    self.emit('started')
 
-  function filter_event(event, path) {
-    return self.execute(path)
+    if (self.options.run) self.execute('')
+    if (self.options.quiet) return
+
+    process.stdout.write(color.yellow('jung is listening..') + '\n')
   }
 
-  function file_filter(path, stats) {
-    if (!stats) return false
+  function filter_event(name) {
+    console.log(name)
+    if (file_filter(true, name)) self.execute(name)
+  }
+
+  function file_filter(is_file, name) {
     var opts = self.options
-      , is_file = stats.isFile()
       , not_array = is_file ? opts.notfiles : opts.notdirs
       , good_array = is_file ? opts.files : opts.dirs
 
@@ -145,13 +154,14 @@ Jung.prototype.start = function Jung$start() {
     good_array = (good_array || []).map(regex)
 
     for (var i = 0, l = good_array.length; i < l; ++i) {
-      if (good_array[i].test(path)) return false
-    }
-    for (i = 0, l = not_array.length; i < l; ++i) {
-      if (not_array[i].test(path)) return true
+      if (good_array[i].test(name)) return true
     }
 
-    return good_array.length
+    for (i = 0, l = not_array.length; i < l; ++i) {
+      if (not_array[i].test(name)) return false
+    }
+
+    return !good_array.length
   }
 
   function regex(str) {
