@@ -53,5 +53,5 @@ function version() {
 function help() {
   version()
   return fs.createReadStream(path.join(__dirname, '../help.txt'))
-    .pipe(process.stdout)
+    .pipe(process.stderr)
 }
