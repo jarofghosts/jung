@@ -1,12 +1,13 @@
-var watcher = require('node-watch')
-  , spawn = require('child_process').spawn
-  , subdirs = require('subdirs')
-  , fs = require('fs')
-  , color = require('bash-color')
-  , debounce = require('just-debounce')
+var spawn = require('child_process').spawn
   , EE = require('events').EventEmitter
-  , path = require('path')
   , inherits = require('util').inherits
+  , path = require('path')
+  , fs = require('fs')
+
+var debounce = require('just-debounce')
+  , watcher = require('node-watch')
+  , color = require('bash-color')
+  , subdirs = require('subdirs')
 
 exports.createJung = create_jung
 exports.Jung = Jung
