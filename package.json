@@ -28,7 +28,7 @@
   "dependencies": {
     "nopt": "2.1.2",
     "bash-color": "0.0.3",
-    "debounce": "0.0.3",
+    "just-debounce": "0.0.1",
     "node-watch": "0.3.4",
     "subdirs": "0.0.0"
   }
