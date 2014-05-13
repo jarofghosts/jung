@@ -13,7 +13,7 @@ exports.createJung = create_jung
 exports.Jung = Jung
 
 function Jung(options, command) {
-  if (!(this instanceof Jung)) return new Jung(options, command)
+  if(!(this instanceof Jung)) return new Jung(options, command)
   command = command || []
   this.blocked = false
   this.watcher = null
@@ -25,11 +25,11 @@ function Jung(options, command) {
   this.options.notdirs.push(/\.git/)
   this.command = Array.isArray(command) ? command : command.split(' ')
 
-  if (!this.options.wait) this.options.wait = 300
-  if (!this.options.root) this.options.root = process.cwd()
-  if (!this.options.timeout) this.options.timeout = 5000
+  if(!this.options.wait) this.options.wait = 300
+  if(!this.options.root) this.options.root = process.cwd()
+  if(!this.options.timeout) this.options.timeout = 5000
 
-  if (!this.options.quiet) {
+  if(!this.options.quiet) {
     this.on('killing', display_kill)
     this.on('queueing', display_queue)
     this.on('running', display_run)
@@ -45,11 +45,11 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
   var self = this
 
   self.emit('triggered')
-  if (!self.blocked) return do_execute()
+  if(!self.blocked) return do_execute()
 
-  if (self.options.kill) {
+  if(self.options.kill) {
     self.queue = [trigger_file]
-    if (!self.child) return self.blocked = false
+    if(!self.child) return self.blocked = false
 
     self.emit('killing')
     self.timeout = setTimeout(force_kill, self.options.timeout)
@@ -85,7 +85,7 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
 
     self.child.on('exit', finish_child)
 
-    if (!self.options.quiet) {
+    if(!self.options.quiet) {
       self.child.stdout.pipe(process.stdout)
       self.child.stderr.pipe(process.stderr)
     }
@@ -102,8 +102,8 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
       self.emit('ran', command.join(' '), code)
       self.blocked = false
 
-      if (self.timeout) self.timeout = clearTimeout(self.timeout)
-      if (self.queue.length) self.execute(self.queue.shift())
+      if(self.timeout) self.timeout = clearTimeout(self.timeout)
+      if(self.queue.length) self.execute(self.queue.shift())
     }
   }
 
@@ -115,7 +115,7 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
 Jung.prototype.start = function Jung$start() {
   var self = this
 
-  if (!fs.existsSync(self.options.root)) {
+  if(!fs.existsSync(self.options.root)) {
     display_error('!! Root dir `' + self.options.root + '` does not exist !!')
     return process.exit(1)
   }
@@ -135,15 +135,14 @@ Jung.prototype.start = function Jung$start() {
 
     self.emit('started')
 
-    if (self.options.run) self.execute('')
-    if (self.options.quiet) return
+    if(self.options.run) self.execute('')
+    if(self.options.quiet) return
 
     process.stdout.write(color.yellow('jung is listening..') + '\n')
   }
 
   function filter_event(name) {
-    console.log(name)
-    if (file_filter(true, name)) self.execute(name)
+    if(file_filter(true, name)) self.execute(name)
   }
 
   function file_filter(is_file, name) {
@@ -154,19 +153,19 @@ Jung.prototype.start = function Jung$start() {
     not_array = (not_array || []).map(regex)
     good_array = (good_array || []).map(regex)
 
-    for (var i = 0, l = good_array.length; i < l; ++i) {
-      if (good_array[i].test(name)) return true
+    for(var i = 0, l = good_array.length; i < l; ++i) {
+      if(good_array[i].test(name)) return true
     }
 
-    for (i = 0, l = not_array.length; i < l; ++i) {
-      if (not_array[i].test(name)) return false
+    for(i = 0, l = not_array.length; i < l; ++i) {
+      if(not_array[i].test(name)) return false
     }
 
     return !good_array.length
   }
 
   function regex(str) {
-    if (str instanceof RegExp) return str
+    if(str instanceof RegExp) return str
     return new RegExp(str)
   }
 }
@@ -174,7 +173,7 @@ Jung.prototype.start = function Jung$start() {
 Jung.prototype.stop = function Jung$stop() {
   var self = this
 
-  if (!self.blocked) return stop()
+  if(!self.blocked) return stop()
 
   self.child.on('exit', stop)
   self.child.kill()
@@ -201,7 +200,7 @@ function display_queue() {
 }
 
 function display_ran(command, code) {
-  if (!code) return
+  if(!code) return
   process.stderr.write(color.red('@@ Command exited with code ' + code) + '\n')
 }
 

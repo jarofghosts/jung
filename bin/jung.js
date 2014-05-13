@@ -37,10 +37,19 @@ var shorts = {
 }
 
 var options = nopt(noptions, shorts, process.argv)
-  , command = options.argv.remain
+  , command_pos = process.argv.indexOf('--') + 1
 
-if (options.version) return version()
-if (options.help || !command.length) return help()
+
+if(options.version) return version()
+if(options.help || !command_pos) return help()
+
+var command = process.argv.slice(command_pos)
+
+options.files = (nopt(
+    noptions
+  , shorts
+  , process.argv.slice(0, process.argv.indexOf('--'))
+).argv.remain || []).concat(options.files)
 
 return new Jung(options, command).start()
 

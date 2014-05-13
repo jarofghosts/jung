@@ -15,7 +15,7 @@ so you can do `jung -f '\.js$' -- browserify main.js -o bundle.js`
 
 or
 
-`jung -f '\.md$' -- cat \$JUNG_FILE | marked -o \$JUNG_FILE.html`
+`jung *.md -- cat \$JUNG_FILE | marked -o \$JUNG_FILE.html`
 
 or
 
@@ -25,7 +25,7 @@ or any other variety of neat stuff.
 
 ## usage
 
-`jung [options] -- <command>`
+`jung [options] [files] -- <command>`
 
 Options are
 
