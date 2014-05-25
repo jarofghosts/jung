@@ -2,6 +2,7 @@ jung
 =====
 
 [![Build Status](https://travis-ci.org/jarofghosts/jung.png?branch=master)](https://travis-ci.org/jarofghosts/jung)
+[![npm install](http://img.shields.io/npm/dm/jung.svg?style=flat)](https://www.npmjs.org/package/jung)
 
 lightweight, flexible, file-watching command runner
 
@@ -15,7 +16,7 @@ so you can do `jung -f '\.js$' -- browserify main.js -o bundle.js`
 
 or
 
-`jung *.md -- cat \$JUNG_FILE | marked -o \$JUNG_FILE.html`
+`jung *.md -- cat \$JUNG_FILE | marked -o \$JUNG_BARENAME.html`
 
 or
 
