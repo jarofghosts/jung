@@ -1,7 +1,7 @@
 jung
 =====
 
-[![Build Status](https://travis-ci.org/jarofghosts/jung.png?branch=master)](https://travis-ci.org/jarofghosts/jung)
+[![Build Status](http://img.shields.io/travis/jarofghosts/jung.svg?style=flat)](https://travis-ci.org/jarofghosts/jung)
 [![npm install](http://img.shields.io/npm/dm/jung.svg?style=flat)](https://www.npmjs.org/package/jung)
 
 lightweight, flexible, file-watching command runner
