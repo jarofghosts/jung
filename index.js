@@ -138,7 +138,7 @@ Jung.prototype.start = function Jung$start() {
     if(self.options.run) self.execute('')
     if(self.options.quiet) return
 
-    process.stdout.write(color.yellow('jung is listening..') + '\n')
+    process.stdout.write(color.yellow('jung is listening') + '\n')
   }
 
   function filter_event(name) {
@@ -147,11 +147,15 @@ Jung.prototype.start = function Jung$start() {
 
   function file_filter(is_file, name) {
     var opts = self.options
-      , not_array = is_file ? opts.notfiles : opts.notdirs
+
+    var not_array = is_file ? opts.notfiles : opts.notdirs
       , good_array = is_file ? opts.files : opts.dirs
+      , good_files = is_file ? opts.names : []
 
     not_array = (not_array || []).map(regex)
     good_array = (good_array || []).map(regex)
+
+    if(good_files.indexOf(name) > -1) return true
 
     for(var i = 0, l = good_array.length; i < l; ++i) {
       if(good_array[i].test(name)) return true
@@ -161,7 +165,7 @@ Jung.prototype.start = function Jung$start() {
       if(not_array[i].test(name)) return false
     }
 
-    return !good_array.length
+    return !(good_array.length + good_files.length)
   }
 
   function regex(str) {

@@ -39,17 +39,16 @@ var shorts = {
 var options = nopt(noptions, shorts, process.argv)
   , command_pos = process.argv.indexOf('--') + 1
 
-
 if(options.version) return version()
 if(options.help || !command_pos) return help()
 
 var command = process.argv.slice(command_pos)
 
-options.files = (nopt(
+options.names = (nopt(
     noptions
   , shorts
   , process.argv.slice(0, process.argv.indexOf('--'))
-).argv.remain || []).concat(options.files)
+).argv.remain || []).map(resolve)
 
 return new Jung(options, command).start()
 
@@ -63,4 +62,8 @@ function help() {
   version()
   return fs.createReadStream(path.join(__dirname, '../help.txt'))
     .pipe(process.stderr)
+}
+
+function resolve(name) {
+  return path.resolve(name)
 }
