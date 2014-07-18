@@ -1,6 +1,5 @@
 var spawn = require('child_process').spawn
   , EE = require('events').EventEmitter
-  , inherits = require('util').inherits
   , path = require('path')
   , fs = require('fs')
 
@@ -9,11 +8,13 @@ var debounce = require('just-debounce')
   , color = require('bash-color')
   , subdirs = require('subdirs')
 
-exports.createJung = create_jung
-exports.Jung = Jung
+module.exports = createJung
 
 function Jung(options, command) {
   if(!(this instanceof Jung)) return new Jung(options, command)
+
+  EE.call(this)
+
   command = command || []
   this.blocked = false
   this.watcher = null
@@ -29,48 +30,41 @@ function Jung(options, command) {
   if(!this.options.root) this.options.root = process.cwd()
   if(!this.options.timeout) this.options.timeout = 5000
 
-  if(!this.options.quiet) {
-    this.on('killing', display_kill)
-    this.on('queueing', display_queue)
-    this.on('running', display_run)
-    this.on('ran', display_ran)
-  }
-
   return this
 }
 
-inherits(Jung, EE)
+Jung.prototype = Object.create(EE.prototype)
 
-Jung.prototype.execute = function Jung$execute(trigger_file) {
+Jung.prototype.execute = function Jung$execute(triggerFile) {
   var self = this
 
   self.emit('triggered')
-  if(!self.blocked) return do_execute()
+  if(!self.blocked) return execute()
 
   if(self.options.kill) {
-    self.queue = [trigger_file]
+    self.queue = [triggerFile]
     if(!self.child) return self.blocked = false
 
     self.emit('killing')
-    self.timeout = setTimeout(force_kill, self.options.timeout)
+    self.timeout = setTimeout(forceKill, self.options.timeout)
     return self.child.kill()
   }
 
-  self.emit('queueing', trigger_file)
-  return self.queue.push(trigger_file)
+  self.emit('queueing', triggerFile)
+  return self.queue.push(triggerFile)
 
-  function do_execute() {
-    var filename = path.basename(trigger_file)
+  function execute() {
+    var filename = path.basename(triggerFile)
       , extension = path.extname(filename)
-      , dirname = path.dirname(trigger_file)
+      , dirname = path.dirname(triggerFile)
       , barename = filename.slice(0, -extension.length)
 
     self.blocked = true
 
     var env = process.env
-      , command = self.command.map(replace_env)
+      , command = self.command.map(replaceEnv)
 
-    env.JUNG_FILE = trigger_file
+    env.JUNG_FILE = triggerFile
     env.JUNG_FILENAME = filename
     env.JUNG_EXTENSION = extension
     env.JUNG_DIR = dirname
@@ -83,22 +77,22 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
       , {env: env, cwd: process.cwd()}
     )
 
-    self.child.on('exit', finish_child)
+    self.child.on('exit', finishChild)
 
     if(!self.options.quiet) {
       self.child.stdout.pipe(process.stdout)
       self.child.stderr.pipe(process.stderr)
     }
 
-    function replace_env(str) {
+    function replaceEnv(str) {
       return str.replace(/\$JUNG_FILENAME/g, filename)
-                .replace(/\$JUNG_FILE/g, trigger_file)
+                .replace(/\$JUNG_FILE/g, triggerFile)
                 .replace(/\$JUNG_EXTENSION/g, extension)
                 .replace(/\$JUNG_DIR/g, dirname)
                 .replace(/\$JUNG_BARENAME/g, barename)
     }
 
-    function finish_child(code) {
+    function finishChild(code) {
       self.emit('ran', command.join(' '), code)
       self.blocked = false
 
@@ -107,7 +101,7 @@ Jung.prototype.execute = function Jung$execute(trigger_file) {
     }
   }
 
-  function force_kill() {
+  function forceKill() {
     self.child && self.child.kill('SIGKILL')
   }
 }
@@ -116,21 +110,25 @@ Jung.prototype.start = function Jung$start() {
   var self = this
 
   if(!fs.existsSync(self.options.root)) {
-    display_error('!! Root dir `' + self.options.root + '` does not exist !!')
+    self.emit(
+        'error'
+      , new Error('!! Root dir `' + self.options.root + '` does not exist !!')
+    )
+
     return process.exit(1)
   }
 
-  subdirs(self.options.root, start_jung)
+  subdirs(self.options.root, startJung)
 
-  function start_jung(err, dirs) {
-    dirs = dirs.filter(function filter_dirs(path) {
-      return file_filter(false, path)
+  function startJung(err, dirs) {
+    dirs = dirs.filter(function filterDirs(path) {
+      return fileFilter(false, path)
     })
 
     self.watcher = watcher(
         dirs.concat(self.options.root)
       , {recursive: false}
-      , debounce(filter_event, self.options.wait)
+      , debounce(filterEvent, self.options.wait)
     )
 
     self.emit('started')
@@ -141,31 +139,31 @@ Jung.prototype.start = function Jung$start() {
     process.stdout.write(color.yellow('jung is listening') + '\n')
   }
 
-  function filter_event(name) {
-    if(file_filter(true, name)) self.execute(name)
+  function filterEvent(name) {
+    if(fileFilter(true, name)) self.execute(name)
   }
 
-  function file_filter(is_file, name) {
+  function fileFilter(isFile, name) {
     var opts = self.options
 
-    var not_array = is_file ? opts.notfiles : opts.notdirs
-      , good_array = is_file ? opts.files : opts.dirs
-      , good_files = is_file ? opts.names : []
+    var notArray = isFile ? opts.notfiles : opts.notdirs
+      , goodArray = isFile ? opts.files : opts.dirs
+      , goodFiles = isFile ? opts.names : []
 
-    not_array = (not_array || []).map(regex)
-    good_array = (good_array || []).map(regex)
+    notArray = (notArray || []).map(regex)
+    goodArray = (goodArray || []).map(regex)
 
-    if(good_files.indexOf(name) > -1) return true
+    if(goodFiles.indexOf(name) > -1) return true
 
-    for(var i = 0, l = good_array.length; i < l; ++i) {
-      if(good_array[i].test(name)) return true
+    for(var i = 0, l = goodArray.length; i < l; ++i) {
+      if(goodArray[i].test(name)) return true
     }
 
-    for(i = 0, l = not_array.length; i < l; ++i) {
-      if(not_array[i].test(name)) return false
+    for(i = 0, l = notArray.length; i < l; ++i) {
+      if(notArray[i].test(name)) return false
     }
 
-    return !(good_array.length + good_files.length)
+    return !(goodArray.length + goodFiles.length)
   }
 
   function regex(str) {
@@ -187,27 +185,6 @@ Jung.prototype.stop = function Jung$stop() {
   }
 }
 
-function create_jung(options, command) {
+function createJung(options, command) {
   return new Jung(options, command)
-}
-
-function display_run(command) {
-  process.stdout.write(color.green('** Running `' + command + '`') + '\n')
-}
-
-function display_kill() {
-  process.stdout.write(color.red('** Killing old process') + '\n')
-}
-
-function display_queue() {
-  process.stdout.write(color.blue('-- Queueing new process') + '\n')
-}
-
-function display_ran(command, code) {
-  if(!code) return
-  process.stderr.write(color.red('@@ Command exited with code ' + code) + '\n')
-}
-
-function display_error(error) {
-  process.stderr.write(color.red(error) + '\n')
 }

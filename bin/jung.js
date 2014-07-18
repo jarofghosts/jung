@@ -37,12 +37,12 @@ var shorts = {
 }
 
 var options = nopt(noptions, shorts, process.argv)
-  , command_pos = process.argv.indexOf('--') + 1
+  , commandPos = process.argv.indexOf('--') + 1
 
 if(options.version) return version()
-if(options.help || !command_pos) return help()
+if(options.help || !commandPos) return help()
 
-var command = process.argv.slice(command_pos)
+var command = process.argv.slice(commandPos)
 
 options.names = (nopt(
     noptions
@@ -50,7 +50,38 @@ options.names = (nopt(
   , process.argv.slice(0, process.argv.indexOf('--'))
 ).argv.remain || []).map(resolve)
 
-return new Jung(options, command).start()
+var jungInstance = Jung(options, command)
+
+jungInstance.start()
+
+if(!options.quiet) {
+  jungInstance.on('error', displayError)
+  jungInstance.on('killing', displayKill)
+  jungInstance.on('queueing', displayQueue)
+  jungInstance.on('running', displayRun)
+  jungInstance.on('ran', displayRan)
+}
+
+function displayRun(command) {
+  process.stdout.write(color.green('** Running `' + command + '`') + '\n')
+}
+
+function displayKill() {
+  process.stdout.write(color.red('** Killing old process') + '\n')
+}
+
+function displayQueue() {
+  process.stdout.write(color.blue('-- Queueing new process') + '\n')
+}
+
+function displayRan(command, code) {
+  if(!code) return
+  process.stderr.write(color.red('@@ Command exited with code ' + code) + '\n')
+}
+
+function displayError(error) {
+  process.stderr.write(color.red(error.message) + '\n')
+}
 
 function version() {
   return process.stdout.write(
@@ -60,7 +91,7 @@ function version() {
 
 function help() {
   version()
-  return fs.createReadStream(path.join(__dirname, '../help.txt'))
+  return fs.createReadStream(path.join(__dirname, '..', 'help.txt'))
     .pipe(process.stderr)
 }
 

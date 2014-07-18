@@ -1,13 +1,13 @@
 var test = require('tape')
 
-var Jung = require('../').Jung
+var Jung = require('../')
 
 test('starts successfully and executes command', function(t) {
   t.plan(3)
   var jung
 
   t.doesNotThrow(function() {
-    jung = new Jung({quiet: true}, 'echo hello'.split(' '))
+    jung = Jung({quiet: true}, 'echo hello'.split(' '))
   })
 
   jung.execute('woo')
@@ -19,7 +19,7 @@ test('starts successfully and executes command', function(t) {
 
 test('sets $JUNG vars', function(t) {
   t.plan(1)
-  var jung = new Jung(
+  var jung = Jung(
       {quiet: true}
     , 'echo \$JUNG_FILE|\$JUNG_FILENAME|\$JUNG_EXTENSION|\$JUNG_DIR|' +
       '\$JUNG_BARENAME'.split(' ')
@@ -34,7 +34,7 @@ test('sets $JUNG vars', function(t) {
 
 test('queues by default', function(t) {
   t.plan(1)
-  var jung = new Jung({quiet: true}, 'echo \$JUNG_FILE'.split(' '))
+  var jung = Jung({quiet: true}, 'echo \$JUNG_FILE'.split(' '))
 
   jung.blocked = true
 
@@ -48,7 +48,7 @@ test('queues by default', function(t) {
 test('can kill if specified', function(t) {
   t.plan(1)
 
-  var jung = new Jung(
+  var jung = Jung(
       {kill: true, timeout: 1, quiet: true}
     , 'echo \$JUNG_FILE'
   )
