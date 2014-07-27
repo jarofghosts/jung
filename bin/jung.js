@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-var Jung = require('../').Jung
-  , nopt = require('nopt')
-  , fs = require('fs')
+var fs = require('fs')
   , path = require('path')
-  , color = require('bash-color')
-  , jung = require('../package.json')
+
+var color = require('bash-color')
+  , nopt = require('nopt')
+
+var jung = require('../package.json')
+  , Jung = require('../')
 
 var noptions = {
     root: Array
