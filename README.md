@@ -89,11 +89,12 @@ the `$` to prevent your shell from replacing it too early.
 ## as a module
 
 ```js
-var jung = require('jung'),
-    options = { files: ['\.js$', /\.md$/], quiet: true },
-    command = 'sh recompile_file.sh $JUNG_FILE'
+var jung = require('jung')
 
-jung.createJung(options, command).start()
+var options = { files: ['\.js$', /\.md$/], quiet: true }
+  , command = 'sh recompile_file.sh $JUNG_FILE'
+
+jung(options, command).start()
 ```
 
 ## module notes
