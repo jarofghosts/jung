@@ -62,6 +62,11 @@ if(!options.quiet) {
   jungInstance.on('queueing', displayQueue)
   jungInstance.on('running', displayRun)
   jungInstance.on('ran', displayRan)
+  jungInstance.on('started', displayListening)
+}
+
+function displayListening() {
+  process.stdout.write(color.yellow('jung is listening') + '\n')
 }
 
 function displayRun(command) {

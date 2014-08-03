@@ -134,9 +134,6 @@ Jung.prototype.start = function Jung$start() {
     self.emit('started')
 
     if(self.options.run) self.execute('')
-    if(self.options.quiet) return
-
-    process.stdout.write(color.yellow('jung is listening') + '\n')
   }
 
   function filterEvent(name) {
