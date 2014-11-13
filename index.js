@@ -11,8 +11,6 @@ var debounce = require('just-debounce')
 module.exports = createJung
 
 function Jung(options, command) {
-  if(!(this instanceof Jung)) return new Jung(options, command)
-
   EE.call(this)
 
   command = command || []
@@ -39,18 +37,22 @@ Jung.prototype.execute = function Jung$execute(triggerFile) {
   var self = this
 
   self.emit('triggered')
+
   if(!self.blocked) return execute()
 
   if(self.options.kill) {
     self.queue = [triggerFile]
+
     if(!self.child) return self.blocked = false
 
     self.emit('killing')
     self.timeout = setTimeout(forceKill, self.options.timeout)
+
     return self.child.kill()
   }
 
   self.emit('queueing', triggerFile)
+
   return self.queue.push(triggerFile)
 
   function execute() {
@@ -121,6 +123,10 @@ Jung.prototype.start = function Jung$start() {
   subdirs(self.options.root, startJung)
 
   function startJung(err, dirs) {
+    if(err) {
+      throw err
+    }
+
     dirs = dirs.filter(function filterDirs(path) {
       return fileFilter(false, path)
     })
@@ -165,6 +171,7 @@ Jung.prototype.start = function Jung$start() {
 
   function regex(str) {
     if(str instanceof RegExp) return str
+
     return new RegExp(str)
   }
 }
