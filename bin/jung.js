@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var fs = require('fs')
-  , path = require('path')
+var path = require('path')
+  , fs = require('fs')
 
 var color = require('bash-color')
   , nopt = require('nopt')
@@ -23,6 +23,7 @@ var noptions = {
   , help: Boolean
   , version: Boolean
 }
+
 var shorts = {
     r: ['--root']
   , R: ['--run']
