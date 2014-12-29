@@ -5,7 +5,6 @@ var spawn = require('child_process').spawn
 
 var debounce = require('just-debounce')
   , watcher = require('node-watch')
-  , color = require('bash-color')
   , subdirs = require('subdirs')
 
 module.exports = createJung
