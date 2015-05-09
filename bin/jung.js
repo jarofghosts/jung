@@ -10,7 +10,7 @@ var jung = require('../package.json')
   , Jung = require('../')
 
 var noptions = {
-    root: Array
+    root: String
   , files: Array
   , dirs: Array
   , notfiles: Array
