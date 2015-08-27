@@ -1,7 +1,10 @@
 # jung
 
-[![Build Status](http://img.shields.io/travis/jarofghosts/jung.svg?style=flat)](https://travis-ci.org/jarofghosts/jung)
-[![npm install](http://img.shields.io/npm/dm/jung.svg?style=flat)](https://www.npmjs.org/package/jung)
+[![Build Status](https://img.shields.io/travis/jarofghosts/jung.svg?style=flat-square)](https://travis-ci.org/jarofghosts/jung)
+[![npm install](https://img.shields.io/npm/dm/jung.svg?style=flat-square)](https://www.npmjs.org/package/jung)
+[![npm version](https://img.shields.io/npm/v/jung.svg?style=flat-square)](https://www.npmjs.org/package/jung)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/feross/standard)
+[![License](https://img.shields.io/npm/l/jung.svg?style=flat-square)](https://github.com/jarofghosts/jung/blob/master/LICENSE)
 
 lightweight, flexible, file-watching command runner
 
