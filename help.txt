@@ -1,16 +1,12 @@
 ===============================================================================
-Usage: jung [options] -- <command>
+Usage: jung [glob] [options] -- <command>
 
 Options are:
---root, -r <dir>        |  Watch files in <dir>, default cwd
---dirs, -d <regex>      |  Only watch sub directories matching <regex>
---notdirs, -D <regex>   |  Ignore sub directories matching <regex>
---files, -f <regex>     |  Only watch files matching <regex>
---notfiles, -F <regex>  |  Ignore files matching <regex>
+--dir, -d <dir>         |  Watch files in <dir>, default cwd
 --wait, -w <time>       |  Debounce reaction for <time> ms, default 300
 --timeout, -t <time>    |  Wait <time> ms after SIGTERM to SIGKILL, default 500
 --kill, -k              |  Kill command for subsequent triggers
 --quiet, -q             |  Do not show output from <command>
---run, -R               |  Run <command> when jung first starts
+--runfirst, -R          |  Run <command> when jung first starts
 --version, -v           |  Print jung version
 --help, -h              |  This thing.
