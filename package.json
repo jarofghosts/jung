@@ -8,7 +8,7 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "test": "babel-node test/*.js",
+    "test": "babel-node test/*.js && npm run lint",
     "build": "babel src --out-dir lib",
     "lint": "standard src/**/*.js test/**/*.js"
   },
