@@ -64,6 +64,11 @@ Jung.prototype.execute = function Jung$execute(triggerFile) {
 
     var env = process.env
       , command = self.command.map(replaceEnv)
+      , options = {env: env, cwd: process.cwd()}
+
+    if(!self.options.quiet) {
+      options.stdio = 'inherit'
+    }
 
     env.JUNG_FILE = triggerFile
     env.JUNG_FILENAME = filename
@@ -72,18 +77,9 @@ Jung.prototype.execute = function Jung$execute(triggerFile) {
     env.JUNG_BARENAME = barename
 
     self.emit('running', command.join(' '))
-    self.child = spawn(
-        command[0]
-      , command.slice(1)
-      , {env: env, cwd: process.cwd()}
-    )
+    self.child = spawn(command[0], command.slice(1), options)
 
     self.child.on('exit', finishChild)
-
-    if(!self.options.quiet) {
-      self.child.stdout.pipe(process.stdout)
-      self.child.stderr.pipe(process.stderr)
-    }
 
     function replaceEnv(str) {
       return str.replace(/\$JUNG_FILENAME/g, filename)
