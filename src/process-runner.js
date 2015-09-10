@@ -8,6 +8,7 @@ module.exports = processRunner
 function processRunner ({kill, command, runfirst, timeout, quiet}) {
   const runner = new EE()
   const [bin, ...args] = command = command.split(/\s+/)
+  const stdio = quiet ? undefined : 'inherit'
 
   let queue = []
   let killTimer
@@ -24,8 +25,7 @@ function processRunner ({kill, command, runfirst, timeout, quiet}) {
 
   function runCommand (filename = '') {
     const env = makeEnv(filename)
-
-    const toRun = [bin, args.map(replaceEnv), {env}]
+    const toRun = [bin, args.map(replaceEnv), {env, stdio}]
 
     killOrQueue(toRun)
 
@@ -92,11 +92,6 @@ function processRunner ({kill, command, runfirst, timeout, quiet}) {
     child = spawn(...toRun)
 
     runner.emit('spawn', toRun)
-
-    if (!quiet) {
-      child.stdout.pipe(process.stdout)
-      child.stderr.pipe(process.stderr)
-    }
 
     child.once('close', finish)
   }
