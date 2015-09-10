@@ -78,7 +78,7 @@ the `$` to prevent your shell from replacing it too early.
 
 ### good
 
-`jung -- echo WHOA CHECKOUT \$JUNG_FILE` || `jung -- echo 'wee $JUNG_FILE'`
+`jung -- echo '$JUNG_FILE did something'`
 
 ## as a module
 

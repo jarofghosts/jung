@@ -36,6 +36,7 @@
   "devDependencies": {
     "eslint": "^1.2.1",
     "eslint-config-standard": "^4.1.0",
+    "eslint-config-standard-react": "^1.0.5",
     "eslint-plugin-standard": "^1.2.0",
     "standard": "^5.1.0",
     "tape": "^4.2.0"
